@@ -574,7 +574,23 @@ function cvr0(){const c=$('#cover');c.style.visibility='hidden';c.style.opacity=
 $('#introP').innerHTML=['With the escalation of hostilities','in February 2022, a large number','of people had to flee Ukraine and','arrived to Moldova'].map(t=>`<span class="ln">${t}</span>`).join('');
 addEventListener('scroll',onScroll,{passive:true});
 // when embedded (e.g. data portal iframe), take focus so wheel/keyboard scrolling reaches the page
-if(window.self!==window.top){addEventListener('load',()=>focus());addEventListener('pointerdown',()=>focus(),{passive:true})}
+if(window.self!==window.top){
+  addEventListener('load',()=>focus());addEventListener('pointerdown',()=>focus(),{passive:true});
+  // the host may block native iframe scrolling (scrolling="no", overflow:hidden wrapper): drive scrollY ourselves
+  const by=d=>scrollTo(0,scrollY+d);
+  addEventListener('wheel',e=>{e.preventDefault();by(e.deltaMode===1?e.deltaY*16:e.deltaMode===2?e.deltaY*innerHeight:e.deltaY)},{passive:false});
+  let ty=null;
+  addEventListener('touchstart',e=>{ty=e.touches[0].clientY},{passive:true});
+  addEventListener('touchmove',e=>{if(ty===null)return;const y=e.touches[0].clientY;e.preventDefault();by(ty-y);ty=y},{passive:false});
+  addEventListener('touchend',()=>{ty=null});
+  addEventListener('keydown',e=>{
+    const k=e.key,h=innerHeight;
+    const d={ArrowDown:60,ArrowUp:-60,PageDown:h*.9,PageUp:-h*.9,' ':e.shiftKey?-h*.9:h*.9}[k];
+    if(d!==undefined){e.preventDefault();by(d)}
+    else if(k==='Home'){e.preventDefault();scrollTo(0,0)}
+    else if(k==='End'){e.preventDefault();scrollTo(0,document.documentElement.scrollHeight)}
+  });
+}
 addEventListener('resize',()=>{layout();onScroll()});
 layout();
 // start: apply initial state without animating
