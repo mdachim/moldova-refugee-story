@@ -15,7 +15,9 @@
   --ua:#DDEBF5; --ro:#F6F9FC; --line:#A9C7E0;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:auto}
+html{scroll-behavior:auto;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+body{min-height:100%;overflow-x:hidden;touch-action:pan-y}
+#stage,#end{touch-action:pan-y}
 body{font-family:Lato,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
 #stage{position:fixed;inset:0;overflow:hidden;background:#fff}
 #map{position:absolute;inset:0;width:100%;height:100%}
@@ -571,6 +573,8 @@ function onScroll(){
 function cvr0(){const c=$('#cover');c.style.visibility='hidden';c.style.opacity=0}
 $('#introP').innerHTML=['With the escalation of hostilities','in February 2022, a large number','of people had to flee Ukraine and','arrived to Moldova'].map(t=>`<span class="ln">${t}</span>`).join('');
 addEventListener('scroll',onScroll,{passive:true});
+// when embedded (e.g. data portal iframe), take focus so wheel/keyboard scrolling reaches the page
+if(window.self!==window.top){addEventListener('load',()=>focus());addEventListener('pointerdown',()=>focus(),{passive:true})}
 addEventListener('resize',()=>{layout();onScroll()});
 layout();
 // start: apply initial state without animating
